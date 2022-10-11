@@ -39,7 +39,7 @@ class EveryDollarAPI:
         Initializes the selenium driver
         """
         opts = Options()
-        # opts.set_headless()
+        opts.set_headless()
         opts.binary_location = "/usr/bin/firefox-esr"
         self.driver = webdriver.Firefox(options=opts)
 
@@ -131,7 +131,6 @@ class EveryDollarAPI:
 
 
     def add_transaction(self, date, merchant, amount):
-        import pdb; pdb.set_trace()
         self._open_transaction_menu()
         self._enter_amount(amount)
         self._enter_date(date)
