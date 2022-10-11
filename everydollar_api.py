@@ -23,11 +23,11 @@ class EveryDollarAPI:
     Provides an interface for the everydollar website
     """
     LOGIN_URL = "https://www.everydollar.com/app/sign-in"
-    USER_ID_FIELD_ID = "email"
-    PASSWORD_FIELD_ID = "password"
-    LOGIN_BTN_XPATH = "//button[text()='Sign In']"
-    EXPECTED_TITLE_CONTENTS = "EveryDollar"
-    ADD_TRANSACTION_BTN_ID = "IconTray_transactions"
+    USER_ID_FIELD_ID = "1-email"
+    PASSWORD_FIELD_ID = "1-password"
+    LOGIN_BTN_XPATH = "//button[.='Sign In']"
+    EXPECTED_TITLE_CONTENTS = "Ramsey Account - Sign In"
+    ADD_TRANSACTION_BTN_CLASS = "AddTransactionLink"
     ADD_NEW_BTN_ID = "TransactionDrawer_addNew"
     AMOUNT_INPUT_CLASS = "TransactionForm-amountInput"
     DATE_INPUT_XPATH = "//input[@name='date']"
@@ -39,7 +39,8 @@ class EveryDollarAPI:
         Initializes the selenium driver
         """
         opts = Options()
-        opts.set_headless()
+        # opts.set_headless()
+        opts.binary_location = "/usr/bin/firefox-esr"
         self.driver = webdriver.Firefox(options=opts)
 
     def close(self):
@@ -73,19 +74,18 @@ class EveryDollarAPI:
         self.driver.get(self.LOGIN_URL)
         self._wait_for_load(By.XPATH, self.LOGIN_BTN_XPATH)
         assert self.EXPECTED_TITLE_CONTENTS in self.driver.title
+        sleep(2)
         user_field = self.driver.find_element_by_id(self.USER_ID_FIELD_ID)
         user_field.send_keys(username)
         password_field = self.driver.find_element_by_id(self.PASSWORD_FIELD_ID)
         password_field.send_keys(password)
         submit_btn = self.driver.find_element_by_xpath(self.LOGIN_BTN_XPATH)
         submit_btn.click()
-        self._wait_for_load(By.ID, self.ADD_TRANSACTION_BTN_ID)
+        self._wait_for_load(By.CLASS_NAME, self.ADD_TRANSACTION_BTN_CLASS)
         print("Successfully logged in")
 
     def _open_transaction_menu(self):
-        self.driver.find_element_by_id(self.ADD_TRANSACTION_BTN_ID).click()
-        self._wait_for_load(By.ID, self.ADD_NEW_BTN_ID)
-        self.driver.find_element_by_id(self.ADD_NEW_BTN_ID).click()
+        self.driver.find_element_by_class_name(self.ADD_TRANSACTION_BTN_CLASS).click()
 
     def _enter_amount(self, amount):
         """
@@ -131,6 +131,7 @@ class EveryDollarAPI:
 
 
     def add_transaction(self, date, merchant, amount):
+        import pdb; pdb.set_trace()
         self._open_transaction_menu()
         self._enter_amount(amount)
         self._enter_date(date)
