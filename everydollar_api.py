@@ -27,6 +27,7 @@ class EveryDollarAPI:
     PASSWORD_FIELD_ID = "1-password"
     LOGIN_BTN_XPATH = "//button[.='Sign In']"
     EXPECTED_TITLE_CONTENTS = "Ramsey Account - Sign In"
+    ADD_TRANSACTION_MENU_BTN_XPATH = "//button[@data-testid='OperationsPanelTriggerTransactions']"
     ADD_TRANSACTION_BTN_CLASS = "AddTransactionLink"
     ADD_NEW_BTN_ID = "TransactionDrawer_addNew"
     AMOUNT_INPUT_CLASS = "TransactionForm-amountInput"
@@ -40,7 +41,7 @@ class EveryDollarAPI:
         """
         opts = Options()
         opts.set_headless()
-        opts.binary_location = "/usr/bin/firefox-esr"
+        # opts.binary_location = "/usr/bin/firefox-esr"
         self.driver = webdriver.Firefox(options=opts)
 
     def close(self):
@@ -80,6 +81,9 @@ class EveryDollarAPI:
         password_field = self.driver.find_element_by_id(self.PASSWORD_FIELD_ID)
         password_field.send_keys(password)
         submit_btn = self.driver.find_element_by_xpath(self.LOGIN_BTN_XPATH)
+        submit_btn.click()
+        self._wait_for_load(By.XPATH, self.ADD_TRANSACTION_MENU_BTN_XPATH)
+        submit_btn = self.driver.find_element_by_xpath(self.ADD_TRANSACTION_MENU_BTN_XPATH)
         submit_btn.click()
         self._wait_for_load(By.CLASS_NAME, self.ADD_TRANSACTION_BTN_CLASS)
         print("Successfully logged in")
