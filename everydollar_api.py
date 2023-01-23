@@ -17,6 +17,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
 from time import time, sleep
+from datetime import datetime
 
 class EveryDollarAPI:
     """
@@ -40,7 +41,7 @@ class EveryDollarAPI:
         Initializes the selenium driver
         """
         opts = Options()
-        opts.set_headless()
+        opts.headless = True
         # opts.binary_location = "/usr/bin/firefox-esr"
         self.driver = webdriver.Firefox(options=opts)
 
@@ -76,22 +77,22 @@ class EveryDollarAPI:
         self._wait_for_load(By.XPATH, self.LOGIN_BTN_XPATH)
         assert self.EXPECTED_TITLE_CONTENTS in self.driver.title
         sleep(2)
-        user_field = self.driver.find_element_by_id(self.USER_ID_FIELD_ID)
+        user_field = self.driver.find_element(By.ID, self.USER_ID_FIELD_ID)
         user_field.send_keys(username)
-        password_field = self.driver.find_element_by_id(self.PASSWORD_FIELD_ID)
+        password_field = self.driver.find_element(By.ID, self.PASSWORD_FIELD_ID)
         password_field.send_keys(password)
-        submit_btn = self.driver.find_element_by_xpath(self.LOGIN_BTN_XPATH)
+        submit_btn = self.driver.find_element(By.XPATH, self.LOGIN_BTN_XPATH)
         submit_btn.click()
         self._wait_for_load(By.XPATH, self.ADD_TRANSACTION_MENU_BTN_XPATH)
-        if (self.driver.find_element_by_id("Modal_close")):
-            self.driver.find_element_by_id("Modal_close").click()
-        submit_btn = self.driver.find_element_by_xpath(self.ADD_TRANSACTION_MENU_BTN_XPATH)
+        if (self.driver.find_element(By.ID, "Modal_close")):
+            self.driver.find_element(By.ID, "Modal_close").click()
+        submit_btn = self.driver.find_element(By.XPATH, self.ADD_TRANSACTION_MENU_BTN_XPATH)
         submit_btn.click()
         self._wait_for_load(By.CLASS_NAME, self.ADD_TRANSACTION_BTN_CLASS)
         print("Successfully logged in")
 
     def _open_transaction_menu(self):
-        self.driver.find_element_by_class_name(self.ADD_TRANSACTION_BTN_CLASS).click()
+        self.driver.find_element(By.CLASS_NAME, self.ADD_TRANSACTION_BTN_CLASS).click()
 
     def _enter_amount(self, amount):
         """
@@ -101,7 +102,7 @@ class EveryDollarAPI:
             amount - float
         """
         amt_str = str(amount)
-        amount_field = self.driver.find_element_by_class_name(self.AMOUNT_INPUT_CLASS)
+        amount_field = self.driver.find_element(By.CLASS_NAME, self.AMOUNT_INPUT_CLASS)
         amount_field.send_keys(amt_str)
 
     def _enter_date(self, date):
@@ -111,7 +112,7 @@ class EveryDollarAPI:
         input:
             date - datetime object
         """
-        date_field = self.driver.find_element_by_xpath(self.DATE_INPUT_XPATH)
+        date_field = self.driver.find_element(By.XPATH, self.DATE_INPUT_XPATH)
         # Backspace enough to clear the current date
         date_field.send_keys(u'\ue003' * 10)
         # convert datetime to string
@@ -125,18 +126,18 @@ class EveryDollarAPI:
         input:
             merchant - string
         """
-        merch_input = self.driver.find_element_by_xpath(self.MERCHANT_INPUT_XPATH)
+        merch_input = self.driver.find_element(By.XPATH, self.MERCHANT_INPUT_XPATH)
         merch_input.send_keys(merchant)
 
     def _submit_transaction(self):
         """
         Submits the add new transaction form
         """
-        submit_btn = self.driver.find_element_by_id(self.TRANSACTION_SUBMIT_BTN_ID)
+        submit_btn = self.driver.find_element(By.ID, self.TRANSACTION_SUBMIT_BTN_ID)
         submit_btn.click()
 
 
-    def add_transaction(self, date, merchant, amount):
+    def add_transaction(self, date: datetime , merchant: str, amount: float):
         self._open_transaction_menu()
         self._enter_amount(amount)
         self._enter_date(date)
