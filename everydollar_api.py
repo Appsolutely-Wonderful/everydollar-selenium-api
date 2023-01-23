@@ -83,6 +83,8 @@ class EveryDollarAPI:
         submit_btn = self.driver.find_element_by_xpath(self.LOGIN_BTN_XPATH)
         submit_btn.click()
         self._wait_for_load(By.XPATH, self.ADD_TRANSACTION_MENU_BTN_XPATH)
+        if (self.driver.find_element_by_id("Modal_close")):
+            self.driver.find_element_by_id("Modal_close").click()
         submit_btn = self.driver.find_element_by_xpath(self.ADD_TRANSACTION_MENU_BTN_XPATH)
         submit_btn.click()
         self._wait_for_load(By.CLASS_NAME, self.ADD_TRANSACTION_BTN_CLASS)
