@@ -1,5 +1,5 @@
 """
-Functions for interacting with the amex website
+Functions for interacting with the EveryDollar website
 
 pre-requisites:
 install geckodriver https://github.com/mozilla/geckodriver/releases
@@ -29,11 +29,13 @@ class EveryDollarAPI:
     LOGIN_BTN_XPATH = "//button[.='Sign In']"
     EXPECTED_TITLE_CONTENTS = "Ramsey Account - Sign In"
     ADD_TRANSACTION_MENU_BTN_XPATH = "//button[@data-testid='OperationsPanelTriggerTransactions']"
-    ADD_TRANSACTION_BTN_CLASS = "AddTransactionLink"
+    ADD_TRANSACTION_BTN_CLASS = "AddTransactionLink-module__AddTransactionLink--EjoHafiYHAtckTey"
     ADD_NEW_BTN_ID = "TransactionDrawer_addNew"
     AMOUNT_INPUT_CLASS = "TransactionForm-amountInput"
     DATE_INPUT_XPATH = "//input[@name='date']"
     MERCHANT_INPUT_XPATH = "//input[@name='merchant']"
+    SELECTOR_TYPE_EXPENSE = "//label[text()='Expense']"
+    SELECTOR_TYPE_INCOME = "//label[text()='Income']"
     TRANSACTION_SUBMIT_BTN_ID = "TransactionModal_submit"
     timeout = 30 # seconds
     def __init__(self):
@@ -94,6 +96,20 @@ class EveryDollarAPI:
     def _open_transaction_menu(self):
         self.driver.find_element(By.CLASS_NAME, self.ADD_TRANSACTION_BTN_CLASS).click()
 
+    def _transaction_type(self, type):
+        """
+        Selects the type of transaction (expense or income)
+
+        input:
+            type - string
+        """
+        if (type == 'expense'):
+            self.driver.find_element(By.XPATH, self.SELECTOR_TYPE_EXPENSE).click()
+        elif (type == 'income'):
+            self.driver.find_element(By.XPATH, self.SELECTOR_TYPE_INCOME).click()
+        else:
+            print(f"Unexpected transaction type: {type}")
+
     def _enter_amount(self, amount):
         """
         Enters date into the form.
@@ -137,8 +153,9 @@ class EveryDollarAPI:
         submit_btn.click()
 
 
-    def add_transaction(self, date: datetime , merchant: str, amount: float):
+    def add_transaction(self, date: datetime , merchant: str, amount: float, type: str = 'expense'):
         self._open_transaction_menu()
+        self._transaction_type(type)
         self._enter_amount(amount)
         self._enter_date(date)
         self._enter_merchant(merchant)

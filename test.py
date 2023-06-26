@@ -14,4 +14,5 @@ except ImportError:
 
 api = EveryDollarAPI()
 api.login(username, password)
-api.add_transaction(datetime.now(), 'This is a test', 123.45)
+api.add_transaction(datetime.now(), 'This is a test', 123.45, 'expense')
+api.add_transaction(datetime.now(), 'This is a test deposit', 543.21, 'income')
