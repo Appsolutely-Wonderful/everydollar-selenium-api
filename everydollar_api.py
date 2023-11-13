@@ -1,5 +1,5 @@
 """
-Functions for interacting with the amex website
+Functions for interacting with the EveryDollar website
 
 pre-requisites:
 install geckodriver https://github.com/mozilla/geckodriver/releases
@@ -11,7 +11,7 @@ Credits: This is possible thanks to the developers of selenium and selenium-pyth
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
@@ -29,11 +29,14 @@ class EveryDollarAPI:
     LOGIN_BTN_XPATH = "//button[.='Sign In']"
     EXPECTED_TITLE_CONTENTS = "Ramsey Account - Sign In"
     ADD_TRANSACTION_MENU_BTN_XPATH = "//button[@data-testid='OperationsPanelTriggerTransactions']"
-    ADD_TRANSACTION_BTN_CLASS = "AddTransactionLink"
+    ADD_TRANSACTION_BTN_CLASS = "AddTransactionLink-module__AddTransactionLink--f_qUlBKnZh35SSsz"
+    ADD_TRANSACTION_BTN_XPATH = "//a[@title='Add Transaction']"
     ADD_NEW_BTN_ID = "TransactionDrawer_addNew"
     AMOUNT_INPUT_CLASS = "TransactionForm-amountInput"
     DATE_INPUT_XPATH = "//input[@name='date']"
     MERCHANT_INPUT_XPATH = "//input[@name='merchant']"
+    SELECTOR_TYPE_EXPENSE = "//label[.='Expense']"
+    SELECTOR_TYPE_INCOME = "//label[.='Income']"
     TRANSACTION_SUBMIT_BTN_ID = "TransactionModal_submit"
     timeout = 30 # seconds
     def __init__(self):
@@ -70,7 +73,7 @@ class EveryDollarAPI:
 
     def login(self, username, password):
         """
-        Login to the american express website by filling in the login
+        Login to the EveryDollar website by filling in the login
         form with the provided username and password
         """
         self.driver.get(self.LOGIN_URL)
@@ -88,11 +91,27 @@ class EveryDollarAPI:
             self.driver.find_element(By.ID, "Modal_close").click()
         submit_btn = self.driver.find_element(By.XPATH, self.ADD_TRANSACTION_MENU_BTN_XPATH)
         submit_btn.click()
-        self._wait_for_load(By.CLASS_NAME, self.ADD_TRANSACTION_BTN_CLASS)
+        self._wait_for_load(By.XPATH, self.ADD_TRANSACTION_BTN_XPATH)
         print("Successfully logged in")
 
     def _open_transaction_menu(self):
-        self.driver.find_element(By.CLASS_NAME, self.ADD_TRANSACTION_BTN_CLASS).click()
+        self._wait_for_load(By.XPATH, self.ADD_TRANSACTION_BTN_XPATH)
+        self.driver.find_element(By.XPATH, self.ADD_TRANSACTION_BTN_XPATH).click()
+        self._wait_for_load(By.XPATH, self.MERCHANT_INPUT_XPATH)
+
+    def _transaction_type(self, type):
+        """
+        Selects the type of transaction (expense or income)
+
+        input:
+            type - string
+        """
+        if (str.lower(type) == 'expense'):
+            self.driver.find_element(By.XPATH, self.SELECTOR_TYPE_EXPENSE).click()
+        elif (str.lower(type) == 'income'):
+            self.driver.find_element(By.XPATH, self.SELECTOR_TYPE_INCOME).click()
+        else:
+            print(f"Unexpected transaction type: {type}")
 
     def _enter_amount(self, amount):
         """
@@ -137,8 +156,9 @@ class EveryDollarAPI:
         submit_btn.click()
 
 
-    def add_transaction(self, date: datetime , merchant: str, amount: float):
+    def add_transaction(self, date: datetime , merchant: str, amount: float, type: str = 'expense'):
         self._open_transaction_menu()
+        self._transaction_type(type)
         self._enter_amount(amount)
         self._enter_date(date)
         self._enter_merchant(merchant)
