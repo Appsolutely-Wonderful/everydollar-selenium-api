@@ -12,7 +12,7 @@ except ImportError:
     print("password = \"my password\"")
     sys.exit()
 
-api = EveryDollarAPI()
+api = EveryDollarAPI(headless=True)
 api.login(username, password)
 api.add_transaction(datetime.now(), 'This is a test', 123.45, 'expense')
 api.add_transaction(datetime.now(), 'This is a test deposit', 543.21, 'income')

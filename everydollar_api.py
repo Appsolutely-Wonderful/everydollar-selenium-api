@@ -39,13 +39,13 @@ class EveryDollarAPI:
     SELECTOR_TYPE_INCOME = "//label[.='Income']"
     TRANSACTION_SUBMIT_BTN_ID = "TransactionModal_submit"
     timeout = 30 # seconds
-    def __init__(self):
+    def __init__(self, headless):
         """
         Initializes the selenium driver
         """
         opts = Options()
-        opts.headless = True
-        # opts.binary_location = "/usr/bin/firefox-esr"
+        if headless:
+            opts.add_argument("--headless")
         self.driver = webdriver.Firefox(options=opts)
 
     def close(self):
